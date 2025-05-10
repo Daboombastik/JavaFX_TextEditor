@@ -1,0 +1,12 @@
+.root {
+    -fx-base: #2b2b2b;
+    -fx-background: #2b2b2b;
+    -fx-text-fill: #dcdcdc;
+}
+
+.text-area {
+    -fx-control-inner-background: #303234;
+    -fx-highlight-fill: #555555;
+    -fx-highlight-text-fill: white;
+    -fx-text-fill: #dcdcdc;
+}

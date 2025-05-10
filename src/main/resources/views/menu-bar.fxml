@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.HBox?>
+<HBox xmlns:fx="http://javafx.com/fxml"
+      fx:id="menuBarContainer" spacing="5" alignment="CENTER_LEFT"
+      fx:controller="fr.shcherbakov.javafxtexteditor.controller.MenuBarController">
+    <MenuBar xmlns:fx="http://javafx.com/fxml">
+        <Menu fx:id="menuFile" text="File">
+            <MenuItem fx:id="openMenuItem" text="Open"/>
+            <MenuItem fx:id="saveMenuItem" text="Save"/>
+            <SeparatorMenuItem/>
+            <MenuItem fx:id="exitMenuItem" text="Exit"/>
+        </Menu>
+        <Menu fx:id="menuEdit" text="Edit">
+            <MenuItem fx:id="undoItem" text="Undo"/>
+            <MenuItem fx:id="redoItem" text="Redo"/>
+        </Menu>
+        <Menu fx:id="menuView" text="View">
+            <MenuItem fx:id="fontMenuItem" text="Font"/>
+            <CheckMenuItem fx:id="darkThemeMenuItem" text="Dark Theme" selected="true"/>
+            <CheckMenuItem fx:id="wrapTextMenuItem" text="Wrap Text" selected="true"/>
+        </Menu>
+    </MenuBar>
+    <Pane HBox.hgrow="ALWAYS"/>
+
+    <!-- Window control buttons -->
+    <Button fx:id="minimizeButton" text="—" focusTraversable="false"/>
+    <Button fx:id="closeButton" text="✕" focusTraversable="false"/>
+</HBox>

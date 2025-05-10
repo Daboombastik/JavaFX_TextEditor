@@ -1,0 +1,28 @@
+/* Apply rounded corners to the BorderPane */
+.border-pane {
+    -fx-background-radius: 15;
+    -fx-border-radius: 15;
+}
+
+/* Apply rounded corners to TextArea */
+.text-area {
+    -fx-background-radius: 15;
+    -fx-border-radius: 15;
+}
+
+.menu-bar {
+    -fx-background-radius: 15;
+    -fx-border-radius: 15;
+}
+
+/* Apply rounded corners to HBox */
+.hbox {
+    -fx-background-radius: 15;
+    -fx-border-radius: 15;
+}
+
+/* Optional: For menu buttons and other elements */
+.button {
+    -fx-background-radius: 5;
+    -fx-border-radius: 5;
+}
