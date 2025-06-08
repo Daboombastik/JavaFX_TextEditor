@@ -16,4 +16,6 @@ module fr.shcherbakov.javafxtexteditor {
     opens fr.shcherbakov.javafxtexteditor.controller to javafx.fxml;
     exports fr.shcherbakov.javafxtexteditor;
     exports fr.shcherbakov.javafxtexteditor.controller;
+    exports fr.shcherbakov.javafxtexteditor.service;
+    exports fr.shcherbakov.javafxtexteditor.model;
 }

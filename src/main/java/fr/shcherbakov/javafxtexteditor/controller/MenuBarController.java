@@ -1,12 +1,13 @@
 package fr.shcherbakov.javafxtexteditor.controller;
 
+import fr.shcherbakov.javafxtexteditor.model.Extension;
+import fr.shcherbakov.javafxtexteditor.service.ViewService;
 import javafx.animation.FadeTransition;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
-import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.io.*;
@@ -15,14 +16,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 public class MenuBarController extends BaseController {
-    private Stage stage;
-
-    @FXML
-    private Menu menuEdit;
-    @FXML
-    private Menu menuView;
-    @FXML
-    private Menu menuFile;
+    public MenuBar menuBar;
     @FXML
     private MenuItem openMenuItem;
     @FXML
@@ -39,52 +33,62 @@ public class MenuBarController extends BaseController {
     private CheckMenuItem wrapTextMenuItem;
     @FXML
     private CheckMenuItem darkThemeMenuItem;
-    @FXML private Button closeButton;
-    @FXML private Button minimizeButton;
+    @FXML
+    private Menu menuExtension;
 
-    @Override
-    public void setStage(Stage stage) throws IOException {
-        this.stage = stage;
+    public MenuBarController(ViewService viewService) {
+        super(viewService);
     }
 
-    public void initComponents(Stage stage, TextArea textArea) {
-        this.stage = stage;
-        setMenuFile(stage, textArea);
+    public void initComponents(TextArea textArea) {
+        setMenuFile(textArea);
         setMenuEdit(textArea);
-        setMenuView(stage, textArea);
-        setButtons(stage);
+        setMenuView(textArea);
+        setMenuExtension();
     }
 
-    public void setMenuFile(Stage stage, TextArea textArea) {
-        openMenuItem.setOnAction(e -> openFile(stage, textArea));
-        saveMenuItem.setOnAction(e -> saveFile(stage, textArea));
-        exitMenuItem.setOnAction(e -> {
-            if (stage != null) stage.close();
+    private void setMenuExtension() {
+        ExtensionController extensionController = (ExtensionController) this.getViewService().getControllerFactory().getController(ExtensionController.class);
+        List<Extension> extensionList = extensionController.getExtensionList();
+        List<MenuItem> extensionMenuItems = extensionList.stream().map(ext -> {
+            MenuItem menuItem = new MenuItem(ext.name());
+            menuItem.setOnAction(_ -> {
+                // Handle extension activation
+                // This can be expanded based on extension functionality
+            });
+            return menuItem;
+        }).toList();
+
+        menuExtension.getItems().clear();
+        menuExtension.getItems().addAll(extensionMenuItems);
+    }
+
+    public void setMenuFile(TextArea textArea) {
+        openMenuItem.setOnAction(_ -> openFile(textArea));
+        saveMenuItem.setOnAction(_ -> saveFile(textArea));
+        exitMenuItem.setOnAction(_ -> {
+            if (super.getStage() != null) super.getStage().close();
         });
     }
 
     public void setMenuEdit(TextArea textArea) {
-        undoItem.setOnAction(e -> textArea.undo());
-        redoItem.setOnAction(e -> textArea.redo());
+        undoItem.setOnAction(_ -> textArea.undo());
+        redoItem.setOnAction(_ -> textArea.redo());
     }
 
-    public void setMenuView(Stage stage, TextArea textArea) {
-        wrapTextMenuItem.setOnAction(e -> textArea.setWrapText(wrapTextMenuItem.isSelected()));
-        darkThemeMenuItem.setOnAction(e -> toggleTheme(stage));
-        fontMenuItem.setOnAction(e -> showFontDialog(textArea));
+    public void setMenuView(TextArea textArea) {
+        wrapTextMenuItem.setOnAction(_ -> textArea.setWrapText(wrapTextMenuItem.isSelected()));
+        darkThemeMenuItem.setOnAction(_ -> toggleTheme());
+        fontMenuItem.setOnAction(_ -> showFontDialog(textArea));
     }
 
-    public void setButtons(Stage stage){
-        closeButton.setOnAction(e -> stage.close());
-        minimizeButton.setOnAction(e -> stage.setIconified(true));
-    }
 
-    private void openFile(Stage stage, TextArea textArea) {
+    private void openFile(TextArea textArea) {
         textArea.setOpacity(0); // Make invisible before setting text
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open Text File");
-        File file = fileChooser.showOpenDialog(stage);
-        FadeTransition fadeIn = new FadeTransition(Duration.millis(1500), textArea);
+        File file = fileChooser.showOpenDialog(super.getStage());
+        FadeTransition fadeIn = new FadeTransition(Duration.millis(450), textArea);
         fadeIn.setFromValue(0);
         fadeIn.setToValue(1);
         if (file != null) {
@@ -101,13 +105,15 @@ public class MenuBarController extends BaseController {
             } catch (IOException ex) {
                 showAlert("Error reading file", ex.getMessage());
             }
+        } else {
+            fadeIn.play();
         }
     }
 
-    private void saveFile(Stage stage, TextArea textArea) {
+    private void saveFile(TextArea textArea) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save Text File");
-        File file = fileChooser.showSaveDialog(stage);
+        File file = fileChooser.showSaveDialog(super.getStage());
         if (file != null) {
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
                 writer.write(textArea.getText());
@@ -136,21 +142,21 @@ public class MenuBarController extends BaseController {
         result.ifPresent(font -> textArea.setFont(Font.font(font, textArea.getFont().getSize())));
     }
 
-    private void applyDarkTheme(Stage stage) {
-        Scene scene = stage.getScene();
+    private void applyDarkTheme() {
+        Scene scene = super.getStage().getScene();
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles/dark-theme.css")).toExternalForm());
     }
 
-    private void removeDarkTheme(Stage stage) {
-        Scene scene = stage.getScene();
+    private void removeDarkTheme() {
+        Scene scene = super.getStage().getScene();
         scene.getStylesheets().removeIf(s -> s.contains("dark-theme.css"));
     }
 
-    private void toggleTheme(Stage stage) {
+    private void toggleTheme() {
         if (darkThemeMenuItem.isSelected()) {
-            applyDarkTheme(stage);
+            applyDarkTheme();
         } else {
-            removeDarkTheme(stage);
+            removeDarkTheme();
         }
     }
 }

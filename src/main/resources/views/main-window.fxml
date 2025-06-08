@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
 <BorderPane xmlns:fx="http://javafx.com/fxml"
@@ -13,5 +11,4 @@
     <center>
         <fx:include fx:id="textArea" source="text-area.fxml"/>
     </center>
-
 </BorderPane>

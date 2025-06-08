@@ -1,93 +1,82 @@
 package fr.shcherbakov.javafxtexteditor.service;
 
-import fr.shcherbakov.javafxtexteditor.controller.BaseController;
-import fr.shcherbakov.javafxtexteditor.controller.MainWindowController;
-import fr.shcherbakov.javafxtexteditor.model.ControllerType;
-import fr.shcherbakov.javafxtexteditor.model.ViewData;
+import fr.shcherbakov.javafxtexteditor.controller.ControllerFactory;
+import fr.shcherbakov.javafxtexteditor.model.Style;
+import fr.shcherbakov.javafxtexteditor.model.View;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Objects;
-
-import java.util.Map;
-import java.util.stream.Collectors;
 
 public class ViewService {
 
     private Stage stage;
+    private final ControllerFactory controllerFactory;
+    private static volatile ViewService INSTANCE;
 
-    private final Map<String, ViewData> viewsAndControllers;
-
-
-    public ViewService(Stage stage) throws IOException, URISyntaxException {
-        setStage(stage);
-        this.viewsAndControllers = loadViewsAndControllers();
+    public static synchronized ViewService getInstance() {
+        if (INSTANCE == null) {
+            INSTANCE = new ViewService();
+        }
+        return INSTANCE;
     }
 
-    public ViewData getViewAndController(String controllerName) {
-        return this.viewsAndControllers.get(controllerName);
+    private ViewService() {
+        this.controllerFactory = new ControllerFactory(this);
     }
 
-    public void show(String name) throws IOException {
-        FXMLLoader loader = new FXMLLoader();
-        ViewData viewData = this.viewsAndControllers.get(name);
-        loader.setControllerFactory(param -> viewData.controller());
-        Scene scene = new Scene(viewData.view(), 600, 400);
-        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles/root.css")).toExternalForm());
+    public void setScene(View view, Style style) throws IOException {
+        Parent root = loadView(view);
+        Scene scene = createScene(root, style);
         this.stage.setScene(scene);
-        viewData.controller().setStage(this.stage);
-
-//        MainWindowController controller = loader.getController();
-//        controller.setStage(this.stage);
-        this.stage.show();
     }
 
     public void setStage(Stage stage) {
         this.stage = stage;
-        this.stage.setTitle("Simple Text Editor");
-        this.stage.initStyle(StageStyle.UNDECORATED);
-    }
-
-    public Map<String, ViewData> loadViewsAndControllers() throws IOException, URISyntaxException {
-        return Files.walk(Path.of(Objects.requireNonNull(getClass().getResource(String.valueOf(Path.of("/views")))).toURI()))
-                .filter(Files::isRegularFile)
-                .filter(path -> path.getFileName().toString().contains(".fxml"))
-                .map(path -> {
-                    try {
-                        FXMLLoader loader = new FXMLLoader(path.toUri().toURL());
-                        Parent node = loader.load();
-                        BaseController controller = loader.getController();
-                        return new ViewData(
-                                node,
-                                controller);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                }).
-                collect(Collectors.toMap(viewData -> viewData.controller().getClass().getSimpleName(), viewData -> viewData));
     }
 
     public Stage getStage() {
         return this.stage;
     }
 
-    public void close() {
+    public void configureStage() {
+        this.stage.setTitle("Text Editor");
+        Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+        double width = screenBounds.getWidth() * 0.7;
+        double height = screenBounds.getHeight() * 0.7;
+        this.stage.setMinWidth(width);
+        this.stage.setMinHeight(height);
+    }
+
+
+    public Parent loadView(View view) throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource(view.getPath()));
+        loader.setControllerFactory(controllerFactory::getController);
+        return loader.load();
+    }
+
+    public Scene createScene(Parent root, Style style) {
+        Scene scene = new Scene(root);
+        scene.getStylesheets().add(
+                Objects.requireNonNull(getClass().getResource(style.getPath())).toExternalForm()
+        );
+        return scene;
+    }
+
+    public void closeStage() {
         this.stage.close();
     }
 
-    public void hide() {
+    public void hideStage() {
         this.stage.hide();
     }
 
-    public void showAndFocus() {
+    public void showStageAndFocus() {
         this.stage.show();
         this.stage.toFront();
     }
@@ -98,5 +87,9 @@ public class ViewService {
 
     public void maximize() {
         this.stage.setMaximized(true);
+    }
+
+    public ControllerFactory getControllerFactory() {
+        return this.controllerFactory;
     }
 }
