@@ -23,14 +23,19 @@ public class ControllerFactory {
 //    }
 
     public ControllerFactory(ViewService viewService) {
+        ExtensionController extensionController = new ExtensionController(viewService);
+        TextAreaController textAreaController = new TextAreaController(viewService);
+        MenuBarController menuBarController = new MenuBarController(viewService);
+        MainWindowController mainWindowController = new MainWindowController(viewService);
+
         controllerSuppliers.put(MainWindowController.class,
-                () -> new MainWindowController(viewService));
+                () -> mainWindowController);
         controllerSuppliers.put(MenuBarController.class,
-                () -> new MenuBarController(viewService));
+                () -> menuBarController);
         controllerSuppliers.put(TextAreaController.class,
-                () -> new TextAreaController(viewService));
+                () -> textAreaController);
         controllerSuppliers.put(ExtensionController.class,
-                () -> new ExtensionController(viewService));
+                () -> extensionController);
     }
 
     public BaseController getController(Class<?> clazz) {

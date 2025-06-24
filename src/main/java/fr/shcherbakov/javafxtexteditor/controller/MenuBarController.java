@@ -1,5 +1,6 @@
 package fr.shcherbakov.javafxtexteditor.controller;
 
+import fr.shcherbakov.javafxtexteditor.config.DIContainer;
 import fr.shcherbakov.javafxtexteditor.model.Extension;
 import fr.shcherbakov.javafxtexteditor.service.ViewService;
 import javafx.animation.FadeTransition;
@@ -53,8 +54,7 @@ public class MenuBarController extends BaseController {
         List<MenuItem> extensionMenuItems = extensionList.stream().map(ext -> {
             MenuItem menuItem = new MenuItem(ext.name());
             menuItem.setOnAction(_ -> {
-                // Handle extension activation
-                // This can be expanded based on extension functionality
+                extensionController.useHandler(ext.name());
             });
             return menuItem;
         }).toList();

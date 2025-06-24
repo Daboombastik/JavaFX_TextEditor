@@ -41,4 +41,8 @@ public class TextAreaController extends BaseController {
             }
         });
     }
+
+    public TextArea getTextArea() {
+        return textArea;
+    }
 }
